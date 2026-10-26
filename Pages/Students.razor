@@ -1,0 +1,129 @@
+@page "/students"
+@inject NavigationManager NavManager
+
+<PageTitle>Students</PageTitle>
+
+<h1>Student Management</h1>
+
+@if (isLoading)
+{
+    <p><em>Loading students...</em></p>
+}
+else
+{
+    <div class="row">
+        @foreach (StudentModel student in students)
+        {
+            <div class="col-md-4 mb-3">
+                <StudentCard Id="@student.Id"
+                             FirstName="@student.FirstName"
+                             LastName="@student.LastName"
+                             Course="@student.Course"
+                             YearLevel="@student.YearLevel"
+                             OnDetailsClick="ViewDetails" />
+            </div>
+        }
+    </div>
+
+    <hr />
+    <h3>Add New Student</h3>
+    <div class="row">
+        <div class="col-md-3">
+            <input value="@newFirstName"
+                   @oninput="OnFirstNameInput"
+                   @onkeydown="CapitalizeFirstName"
+                   class="form-control mb-2"
+                   placeholder="First Name" />
+        </div>
+        <div class="col-md-3">
+            <input @bind="newLastName" class="form-control mb-2" placeholder="Last Name" />
+        </div>
+        <div class="col-md-3">
+            <input @bind="newCourse" class="form-control mb-2" placeholder="Course" />
+        </div>
+        <div class="col-md-2">
+            <input @bind="newYearLevel" type="number" class="form-control mb-2" placeholder="Year" />
+        </div>
+        <div class="col-md-1">
+            <button @onclick="AddStudent" class="btn btn-success">Add</button>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<StudentModel> students = new List<StudentModel>();
+
+    private string newFirstName = "";
+    private string newLastName = "";
+    private string newCourse = "";
+    private int newYearLevel = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate API loading delay for UI/UX demonstration
+        await Task.Delay(millisecondsDelay: 10000);
+        students = new List<StudentModel>
+        {
+            new StudentModel { Id = 1, FirstName = "Juan", LastName = "Dela Cruz", Course = "BSCS", YearLevel = 3 },
+            new StudentModel { Id = 2, FirstName = "Maria", LastName = "Clara", Course = "BSIT", YearLevel = 2 }
+        };
+        isLoading = false;
+    }
+
+    private void AddStudent()
+    {
+        if (!string.IsNullOrWhiteSpace(newFirstName) && !string.IsNullOrWhiteSpace(newLastName))
+        {
+            students.Add(new StudentModel
+            {
+                Id = students.Count + 1,
+                FirstName = newFirstName,
+                LastName = newLastName,
+                Course = newCourse,
+                YearLevel = newYearLevel
+            });
+
+            // Clear input
+            newFirstName = "";
+            newLastName = "";
+            newCourse = "";
+            newYearLevel = 1;
+        }
+    }
+
+    private void ViewDetails(int id)
+    {
+        NavManager.NavigateTo($"/student/{id}");
+    }
+
+    private void OnFirstNameInput(ChangeEventArgs e)
+    {
+        newFirstName = e.Value?.ToString() ?? string.Empty;
+        ApplyFirstLetterCapital();
+    }
+
+    private void CapitalizeFirstName(KeyboardEventArgs e)
+    {
+        ApplyFirstLetterCapital();
+    }
+
+    private void ApplyFirstLetterCapital()
+    {
+        if (string.IsNullOrEmpty(newFirstName))
+        {
+            return;
+        }
+
+        newFirstName = char.ToUpper(newFirstName[0]) + newFirstName[1..];
+    }
+
+    public class StudentModel
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Course { get; set; } = string.Empty;
+        public int YearLevel { get; set; }
+    }
+}

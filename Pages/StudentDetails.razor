@@ -1,0 +1,22 @@
+@page "/student/{id:int}"
+@inject NavigationManager NavManager
+
+<PageTitle>Student @Id</PageTitle>
+
+<h1>Student Details</h1>
+
+<div class="student-details">
+    <p>You are viewing the details page for student ID <strong>@Id</strong>.</p>
+    <p>This route uses a Blazor route parameter on <code>StudentDetails.razor</code>.</p>
+    <button class="btn btn-outline-primary" @onclick="GoBack">Back to Students</button>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/students");
+    }
+}
